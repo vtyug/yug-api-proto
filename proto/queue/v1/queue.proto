@@ -1,0 +1,197 @@
+syntax = "proto3";
+
+package com.vtyug.yug.queue.grpc.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/vtyug/yug-server/proto/queue/v1;v1";
+
+// 队列服务
+service Queue {
+  // SendMessage 发送消息
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {
+    option (google.api.http) = {
+      post: "/v1/queue/messages"
+      body: "*"
+    };
+  }
+
+  // BatchSendMessage 批量发送消息
+  rpc BatchSendMessage(BatchSendMessageRequest) returns (BatchSendMessageResponse) {
+    option (google.api.http) = {
+      post: "/v1/queue/messages/batch"
+      body: "*"
+    };
+  }
+
+  // GetQueueStats 获取队列统计信息
+  rpc GetQueueStats(GetQueueStatsRequest) returns (GetQueueStatsResponse) {
+    option (google.api.http) = {
+      get: "/v1/queue/stats/{topic}"
+    };
+  }
+
+  // StartConsumer 启动消费者
+  rpc StartConsumer(StartConsumerRequest) returns (StartConsumerResponse) {
+    option (google.api.http) = {
+      post: "/v1/queue/consumers"
+      body: "*"
+    };
+  }
+
+  // StopConsumer 停止消费者
+  rpc StopConsumer(StopConsumerRequest) returns (StopConsumerResponse) {
+    option (google.api.http) = {
+      delete: "/v1/queue/consumers/{group_id}"
+    };
+  }
+
+  // ConsumeMessages 消费消息
+  rpc ConsumeMessages(ConsumeMessagesRequest) returns (ConsumeMessagesResponse) {
+    option (google.api.http) = {
+      post: "/v1/queue/messages/consume"
+      body: "*"
+    };
+  }
+}
+
+// Message 消息
+message Message {
+  string topic = 1;                                    // 主题
+  bytes payload = 2;                                   // 消息内容
+  map<string, string> headers = 3;                     // 消息头
+  google.protobuf.Timestamp timestamp = 4;             // 时间戳
+  MessagePriority priority = 5;                        // 优先级
+  RetryPolicy retry_policy = 6;                        // 重试策略
+}
+
+// MessagePriority 消息优先级
+enum MessagePriority {
+  PRIORITY_UNSPECIFIED = 0;  // 未指定
+  PRIORITY_LOW = 1;          // 低优先级
+  PRIORITY_NORMAL = 2;       // 普通优先级
+  PRIORITY_HIGH = 3;         // 高优先级
+  PRIORITY_URGENT = 4;       // 紧急优先级
+}
+
+// RetryPolicy 重试策略
+message RetryPolicy {
+  int32 max_retries = 1;        // 最大重试次数
+  int32 initial_delay_ms = 2;   // 初始延迟（毫秒）
+  int32 max_delay_ms = 3;       // 最大延迟（毫秒）
+  string dead_letter_topic = 4;  // 死信队列主题
+}
+
+// MessageResult 消息发送结果
+message MessageResult {
+  string message_id = 1;  // 消息ID
+  string topic = 2;       // 主题
+  int32 partition = 3;    // 分区
+  int64 offset = 4;       // 偏移量
+  bool success = 5;       // 是否成功
+  string error = 6;       // 错误信息
+}
+
+// SendMessageRequest 发送消息请求
+message SendMessageRequest {
+  Message message = 1;  // 消息
+}
+
+// SendMessageResponse 发送消息响应
+message SendMessageResponse {
+  MessageResult result = 1;  // 发送结果
+}
+
+// BatchSendMessageRequest 批量发送消息请求
+message BatchSendMessageRequest {
+  repeated Message messages = 1;  // 消息列表
+}
+
+// BatchSendMessageResponse 批量发送消息响应
+message BatchSendMessageResponse {
+  repeated MessageResult results = 1;  // 发送结果列表
+}
+
+// GetQueueStatsRequest 获取队列统计信息请求
+message GetQueueStatsRequest {
+  string topic = 1;  // 主题
+}
+
+// GetQueueStatsResponse 获取队列统计信息响应
+message GetQueueStatsResponse {
+  string topic = 1;                                  // 主题
+  int32 partition_count = 2;                         // 分区数量
+  int64 message_count = 3;                          // 消息总数
+  repeated PartitionStats partitions = 4;            // 分区统计信息
+  repeated ConsumerGroupStats consumer_groups = 5;   // 消费者组统计信息
+}
+
+// PartitionStats 分区统计信息
+message PartitionStats {
+  int32 partition = 1;      // 分区ID
+  int64 first_offset = 2;   // 起始偏移量
+  int64 last_offset = 3;    // 结束偏移量
+  int64 message_count = 4;  // 消息数量
+}
+
+// ConsumerGroupStats 消费者组统计信息
+message ConsumerGroupStats {
+  string group_id = 1;           // 消费者组ID
+  int32 member_count = 2;        // 成员数量
+  repeated string member_ids = 3; // 成员ID列表
+}
+
+// StartConsumerRequest 启动消费者请求
+message StartConsumerRequest {
+  string group_id = 1;                      // 消费者组ID
+  repeated string topics = 2;               // 主题列表
+  int32 concurrent_count = 3;               // 并发数
+  ConsumerRetryConfig retry_config = 4;     // 重试配置
+  ConsumerPriorityConfig priority_config = 5; // 优先级配置
+}
+
+// ConsumerRetryConfig 消费者重试配置
+message ConsumerRetryConfig {
+  bool enable_retry = 1;         // 是否启用重试
+  int32 max_retries = 2;        // 最大重试次数
+  int32 initial_delay_ms = 3;   // 初始延迟（毫秒）
+  int32 max_delay_ms = 4;       // 最大延迟（毫秒）
+  string dead_letter_topic = 5;  // 死信队列主题
+  bool enable_backoff = 6;       // 是否启用退避策略
+}
+
+// ConsumerPriorityConfig 消费者优先级配置
+message ConsumerPriorityConfig {
+  bool enable_priority = 1;                // 是否启用优先级
+  map<int32, int32> weights = 2;          // 优先级权重配置
+  int32 max_wait_ms = 3;                  // 最大等待时间（毫秒）
+}
+
+// StartConsumerResponse 启动消费者响应
+message StartConsumerResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+// StopConsumerRequest 停止消费者请求
+message StopConsumerRequest {
+  string group_id = 1;            // 消费者组ID
+  repeated string topics = 2;     // 主题列表
+}
+
+// StopConsumerResponse 停止消费者响应
+message StopConsumerResponse {}
+
+// ConsumeMessagesRequest 消费消息请求
+message ConsumeMessagesRequest {
+  string group_id = 1;     // 消费者组ID
+  string topic = 2;        // 主题
+  int32 max_messages = 3;  // 最大消息数量
+  int32 wait_time_ms = 4;  // 等待时间（毫秒）
+}
+
+// ConsumeMessagesResponse 消费消息响应
+message ConsumeMessagesResponse {
+  repeated Message messages = 1;  // 消息列表
+} 

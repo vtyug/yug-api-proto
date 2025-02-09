@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package com.vtyug.yug.like.grpc.v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "like/v1/like_bo.proto";
+
+option go_package = "proto/like/v1;v1";
+
+option (.grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "YUG Like Service";
+        version: "1.0.0";
+        description: "The YUG Like Service provides a set of APIs to like and unlike content.";
+        contact: {
+            name: "与光科技";
+            url: "https://dev.yuguang.com";
+            email: "tech@yuguang.com";
+        };
+    };
+    schemes: [HTTP, HTTPS];
+    consumes: "application/json";
+    produces: "application/json";
+};
+
+service LikeApi {
+    // 点赞/取消点赞
+    rpc Like(LikeRequest) returns (LikeResponse) {
+        option (google.api.http) = {
+            post: "/v1/like"
+            body: "*"
+        };
+    }
+
+    // 批量点赞/取消点赞
+    rpc BatchLike(BatchLikeRequest) returns (BatchLikeResponse) {
+        option (google.api.http) = {
+            post: "/v1/like/batch"
+            body: "*"
+        };
+    }
+
+    // 批量获取点赞状态
+    rpc BatchGetLikeStatus(BatchGetLikeStatusRequest) returns (BatchGetLikeStatusResponse) {
+        option (google.api.http) = {
+            get: "/v1/like/batch/status"
+        };
+    }
+
+    // 获取用户点赞列表
+    rpc ListUserLikes(ListUserLikesRequest) returns (ListUserLikesResponse) {
+        option (google.api.http) = {
+            get: "/v1/like/user"
+        };
+    }
+
+    // 获取点赞用户ID列表
+    rpc ListLikeUserIds(ListLikeUserIdsRequest) returns (ListLikeUserIdsResponse) {
+        option (google.api.http) = {
+            get: "/v1/like/user-ids"
+        };
+    }
+
+    // 批量删除点赞数据
+    rpc BatchDeleteLikes(BatchDeleteLikesRequest) returns (BatchDeleteLikesResponse) {
+        option (google.api.http) = {
+            delete: "/v1/like/batch"
+        };
+    }
+
+    // 获取热度排行
+    rpc GetHotRanking(GetHotRankingRequest) returns (GetHotRankingResponse) {
+        option (google.api.http) = {
+            get: "/v1/like/ranking"
+        };
+    }
+
+    // 统计点赞数
+    rpc CountLikes(CountLikesRequest) returns (CountLikesResponse) {
+        option (google.api.http) = {
+            get: "/v1/like/count"
+        };
+    }
+}
