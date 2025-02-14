@@ -1,6 +1,6 @@
 name: yug_api_proto
 description: YUG API Protocol Buffers
-version: 1.0.1
+version: 1.0.2
 publish_to: none
 
 environment:
