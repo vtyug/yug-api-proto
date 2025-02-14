@@ -1,7 +1,16 @@
 name: yug_api_proto
 description: YUG API Protocol Buffers
-version: 1.0.2
+version: 1.0.3
 publish_to: none
+homepage: https://github.com/vtyug/yug-api-proto
 
 environment:
   sdk: '>=2.12.0 <4.0.0'
+
+dependencies:
+  protobuf: ^3.0.0
+  grpc: ^3.0.0
+  fixnum: ^1.0.0
+
+dev_dependencies:
+  lints: ^2.0.0
