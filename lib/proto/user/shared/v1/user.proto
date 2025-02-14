@@ -11,7 +11,7 @@ enum Gender {
     GENDER_FEMALE = 2;
 }
 
-// 用户基本信息
+// 用户基本信息2
 message UserInfo {
     uint64 user_id = 1;
     string username = 2;
