@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package com.vtyug.yug.support.backend.grpc.v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/protobuf/empty.proto";
+import "support/shared/v1/support.proto";
+
+option go_package = "github.com/vtyug/yug-server/proto/support/backend/v1;v1";
+
+option (.grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "YUG Support Backend Service";
+        version: "1.0.0";
+        description: "The YUG Support Backend Service provides administrative APIs to manage support system.";
+        contact: {
+            name: "VTYUG 与光科技";
+            url: "https://dev.yuguang.com";
+            email: "tech@yuguang.com";
+        };
+    };
+    schemes: [HTTP, HTTPS];
+    consumes: "application/json";
+    produces: "application/json";
+};
+
+service Support {
+    // 创建帮助文章
+    rpc CreateArticle(com.vtyug.yug.support.shared.v1.CreateArticleRequest) returns (com.vtyug.yug.support.shared.v1.Article) {
+        option (google.api.http) = {
+            post: "/v1/support/admin/articles"
+            body: "*"
+        };
+    }
+
+    // 更新帮助文章
+    rpc UpdateArticle(com.vtyug.yug.support.shared.v1.UpdateArticleRequest) returns (com.vtyug.yug.support.shared.v1.Article) {
+        option (google.api.http) = {
+            put: "/v1/support/admin/articles/{article_id}"
+            body: "*"
+        };
+    }
+
+    // 删除帮助文章
+    rpc DeleteArticle(com.vtyug.yug.support.shared.v1.DeleteArticleRequest) returns (google.protobuf.Empty) {
+        option (google.api.http).delete = "/v1/support/admin/articles/{article_id}";
+    }
+
+    // 发布/取消发布帮助文章
+    rpc PublishArticle(com.vtyug.yug.support.shared.v1.PublishArticleRequest) returns (com.vtyug.yug.support.shared.v1.Article) {
+        option (google.api.http) = {
+            put: "/v1/support/admin/articles/{article_id}/publish"
+            body: "*"
+        };
+    }
+
+    // 置顶/取消置顶帮助文章
+    rpc PinArticle(com.vtyug.yug.support.shared.v1.PinArticleRequest) returns (com.vtyug.yug.support.shared.v1.Article) {
+        option (google.api.http) = {
+            put: "/v1/support/admin/articles/{article_id}/pin"
+            body: "*"
+        };
+    }
+
+    // 获取所有反馈列表（包括更多筛选条件）
+    rpc ListAllFeedbacks(com.vtyug.yug.support.shared.v1.ListAllFeedbacksRequest) returns (com.vtyug.yug.support.shared.v1.ListFeedbacksResponse) {
+        option (google.api.http).get = "/v1/support/admin/feedbacks";
+    }
+
+    // 分配反馈给客服
+    rpc AssignFeedback(com.vtyug.yug.support.shared.v1.AssignFeedbackRequest) returns (com.vtyug.yug.support.shared.v1.Feedback) {
+        option (google.api.http) = {
+            put: "/v1/support/admin/feedbacks/{feedback_id}/assign"
+            body: "*"
+        };
+    }
+
+    // 更新反馈优先级
+    rpc UpdateFeedbackPriority(com.vtyug.yug.support.shared.v1.UpdateFeedbackPriorityRequest) returns (com.vtyug.yug.support.shared.v1.Feedback) {
+        option (google.api.http) = {
+            put: "/v1/support/admin/feedbacks/{feedback_id}/priority"
+            body: "*"
+        };
+    }
+
+    // 批量导出反馈
+    rpc ExportFeedbacks(com.vtyug.yug.support.shared.v1.ExportFeedbacksRequest) returns (com.vtyug.yug.support.shared.v1.ExportFeedbacksResponse) {
+        option (google.api.http).get = "/v1/support/admin/feedbacks/export";
+    }
+
+    // 获取支持统计数据
+    rpc GetSupportStats(com.vtyug.yug.support.shared.v1.GetSupportStatsRequest) returns (com.vtyug.yug.support.shared.v1.GetSupportStatsResponse) {
+        option (google.api.http).get = "/v1/support/admin/stats";
+    }
+
+    // 创建公告
+    rpc CreateAnnouncement(com.vtyug.yug.support.shared.v1.CreateAnnouncementRequest) returns (com.vtyug.yug.support.shared.v1.Announcement) {
+        option (google.api.http) = {
+            post: "/v1/support/admin/announcements"
+            body: "*"
+        };
+    }
+
+    // 更新公告
+    rpc UpdateAnnouncement(com.vtyug.yug.support.shared.v1.UpdateAnnouncementRequest) returns (com.vtyug.yug.support.shared.v1.Announcement) {
+        option (google.api.http) = {
+            put: "/v1/support/admin/announcements/{announcement_id}"
+            body: "*"
+        };
+    }
+
+    // 发布公告
+    rpc PublishAnnouncement(com.vtyug.yug.support.shared.v1.PublishAnnouncementRequest) returns (com.vtyug.yug.support.shared.v1.Announcement) {
+        option (google.api.http) = {
+            put: "/v1/support/admin/announcements/{announcement_id}/publish"
+            body: "*"
+        };
+    }
+}

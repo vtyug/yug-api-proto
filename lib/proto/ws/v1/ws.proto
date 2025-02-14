@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package com.vtyug.yug.ws.grpc.v1;
+
+option go_package = "github.com/vtyug/yug-server/proto/ws/v1;v1";
+
+service Ws {
+  // 获取WebSocket连接信息
+  rpc GetConnectionInfo (GetConnectionInfoRequest) returns (GetConnectionInfoResponse) {}
+  // 发送消息到指定连接
+  rpc SendMessage (SendMessageRequest) returns (SendMessageResponse) {}
+  // 广播消息到指定主题
+  rpc BroadcastMessage (BroadcastMessageRequest) returns (BroadcastMessageResponse) {}
+  // 获取在线连接统计
+  rpc GetConnectionStats (GetConnectionStatsRequest) returns (GetConnectionStatsResponse) {}
+  // 双向流式RPC方法用于WebSocket连接
+  rpc Connect (stream WsMessage) returns (stream WsMessage) {}
+}
+
+message GetConnectionInfoRequest {
+  string connection_id = 1;
+}
+
+message GetConnectionInfoResponse {
+  string connection_id = 1;
+  string client_ip = 2;
+  int64 connected_at = 3;
+  repeated string subscribed_topics = 4;
+}
+
+message SendMessageRequest {
+  string connection_id = 1;
+  string message_type = 2;
+  bytes payload = 3;
+}
+
+message SendMessageResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message BroadcastMessageRequest {
+  string topic = 1;
+  string message_type = 2;
+  bytes payload = 3;
+  repeated string exclude_connection_ids = 4;
+}
+
+message BroadcastMessageResponse {
+  int32 delivered_count = 1;
+  string error = 2;
+}
+
+message GetConnectionStatsRequest {}
+
+message GetConnectionStatsResponse {
+  int32 total_connections = 1;
+  map<string, int32> connections_by_topic = 2;
+}
+
+// WebSocket消息
+message WsMessage {
+  string type = 1;
+  string topic = 2;
+  bytes payload = 3;
+  string error = 4;
+  bool success = 5;
+  int32 subscriber_count = 6;
+  uint64 user_id = 7;
+} 

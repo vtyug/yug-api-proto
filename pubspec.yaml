@@ -1,0 +1,7 @@
+name: yug_api_proto
+description: YUG API Protocol Buffers
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=2.12.0 <4.0.0'
