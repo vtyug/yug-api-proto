@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+package com.vtyug.yug.contentmod.grpc.v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "proto/contentmod/v1;v1";
+
+option (.grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "YUG Content Moderation Service";
+        version: "1.0.0";
+        description: "The YUG Content Moderation Service provides a set of APIs to detect and filter sensitive content.";
+        contact: {
+            name: "与光科技";
+            url: "https://dev.yuguang.com";
+            email: "tech@yuguang.com";
+        };
+    };
+    schemes: [HTTP, HTTPS];
+    consumes: "application/json";
+    produces: "application/json";
+};
+
+// ContentModService 提供内容审核功能
+service ContentModService {
+    // DetectText 检查文本是否包含敏感词
+    rpc DetectText (DetectTextRequest) returns (DetectTextResponse) {
+        option (google.api.http) = {
+            post: "/v1/contentmod/detect-text"
+            body: "*"
+        };
+    }
+    
+    // FilterText 将敏感词替换为星号
+    rpc FilterText (FilterTextRequest) returns (FilterTextResponse) {
+        option (google.api.http) = {
+            post: "/v1/contentmod/filter-text"
+            body: "*"
+        };
+    }
+    
+    // MatchAllSensitiveWords 查找文本中的所有敏感词
+    rpc MatchAllSensitiveWords (MatchAllRequest) returns (MatchAllResponse) {
+        option (google.api.http) = {
+            post: "/v1/contentmod/match-all"
+            body: "*"
+        };
+    }
+    
+    // AddCustomWords 向检测器添加自定义敏感词
+    rpc AddCustomWords (AddCustomWordsRequest) returns (AddCustomWordsResponse) {
+        option (google.api.http) = {
+            post: "/v1/contentmod/add-custom-words"
+            body: "*"
+        };
+    }
+}
+
+// Category represents the category of sensitive words
+enum Category {
+    UNKNOWN = 0;
+    PORNOGRAPHY = 1;      // 涉黄
+    POLITICAL = 2;        // 涉政
+    GAMBLING = 3;         // 赌博
+    DRUGS = 4;            // 毒品
+    PROFANITY = 5;        // 脏话
+    DISCRIMINATION = 6;   // 歧视
+    SCAM = 7;             // 诈骗
+    CUSTOM = 8;           // 自定义
+    VIOLENCE = 9;         // 暴力
+}
+
+// DetectTextRequest 是 DetectText 的请求
+message DetectTextRequest {
+    string text = 1;
+    repeated Category categories = 2; // If empty, check all categories
+}
+
+// DetectTextResponse 是 DetectText 的响应
+message DetectTextResponse {
+    bool contains_sensitive_words = 1;
+    repeated Category matched_categories = 2;
+}
+
+// FilterTextRequest 是 FilterText 的请求
+message FilterTextRequest {
+    string text = 1;
+    repeated Category categories = 2; // If empty, filter all categories
+    string replacement = 3; // Default is "*"
+}
+
+// FilterTextResponse 是 FilterText 的响应
+message FilterTextResponse {
+    string filtered_text = 1;
+    bool contains_sensitive_words = 2;
+}
+
+// SensitiveWordMatch 表示匹配的敏感词
+message SensitiveWordMatch {
+    string word = 1;
+    Category category = 2;
+    int32 start_pos = 3;
+    int32 end_pos = 4;
+}
+
+// MatchAllRequest 是 MatchAllSensitiveWords 的请求
+message MatchAllRequest {
+    string text = 1;
+    repeated Category categories = 2; // If empty, match all categories
+}
+
+// MatchAllResponse 是 MatchAllSensitiveWords 的响应
+message MatchAllResponse {
+    repeated SensitiveWordMatch matches = 1;
+}
+
+// CustomWord 表示具有其类别的自定义敏感词
+message CustomWord {
+    string word = 1;
+    Category category = 2;
+}
+
+// AddCustomWordsRequest 是 AddCustomWords 的请求
+message AddCustomWordsRequest {
+    repeated CustomWord words = 1;
+}
+
+// AddCustomWordsResponse 是 AddCustomWords 的响应
+message AddCustomWordsResponse {
+    bool success = 1;
+    string message = 2;
+    int32 added_count = 3;
+}
