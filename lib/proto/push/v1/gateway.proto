@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package com.vtyug.yug.push.grpc.v1;
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/vtyug/yug-server/app/push/proto/push/v1;v1";
+option java_multiple_files = true;
+option java_package = "proto.push.v1";
+
+option (.grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+      title: "YUG push Service";
+      version: "1.0.0";
+      description: "YUG push Service";
+      contact: {
+          name: "与光科技";
+          url: "https://dev.yuguang.com";
+          email: "tech@yuguang.com";
+      };
+  };
+  schemes: [HTTP, HTTPS];
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+service Gateway {
+  // 单条消息多设备推送
+  rpc Push(PushRequest) returns (PushReply);
+  // 多条消息多设备推送
+  rpc BatchPush(BatchPushRequest) returns (BatchPushReply);
+}
+
+message Message {
+  // 消息标题
+  string title = 1;
+  // 消息内容
+  string content = 2;
+  // 消息
+  string url = 3;
+}
+
+message PushRequest {
+  // 设备注册id
+  repeated string push_reg_ids = 1;
+  // 消息
+  Message message = 2;
+  // 包名
+  string appid = 3;
+}
+
+message PushReply {
+
+}
+
+message BatchPushRequest {
+  // 推送请求列表
+  repeated PushRequest data = 1;
+}
+message BatchPushReply {
+
+}
